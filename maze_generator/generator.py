@@ -1,6 +1,6 @@
 import random
 
-from .config import read_config
+from config import read_config_generator
 
 
 class Cell:
@@ -218,7 +218,7 @@ class Maze:
 
 
 def generate():
-    line, column = read_config()
+    line, column = read_config_generator()
 
     maze = Maze(line=line, column=column)
 
