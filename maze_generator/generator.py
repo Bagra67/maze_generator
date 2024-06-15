@@ -19,14 +19,21 @@ class Cell:
         self.exit = False
 
     def __str__(self) -> str:
-        return "({}, {}: {}|{}|{}|{})".format(self._c - 1, self._l - 1, self.wall_up, self.wall_right, self.wall_down, self.wall_left)
+        return "({}, {}: {}|{}|{}|{})".format(
+            self._c - 1,
+            self._l - 1,
+            self.wall_up,
+            self.wall_right,
+            self.wall_down,
+            self.wall_left,
+        )
 
     def display(self):
         print("🟦", end="")
 
     def get_c(self):
-        return self._c 
-    
+        return self._c
+
     def get_l(self):
         return self._l
 
@@ -46,16 +53,16 @@ class Maze:
         for i in range(line + 2):
             self.maze[i][0].visited = True
             self.maze[i][column + 1].visited = True
-       
+
         for j in range(column + 2):
             self.maze[0][j].visited = True
             self.maze[line + 1][j].visited = True
-    
+
     def __str__(self):
-        result = ''
+        result = ""
         for i in range(self._line + 2):
             for j in range(self._column + 2):
-                result += "T" if self.maze[i][j].visited else 'F'
+                result += "T" if self.maze[i][j].visited else "F"
             result += "\n"
         return result
 
@@ -68,8 +75,12 @@ class Maze:
         offset: list[int] = [-1, 0, 1]
         for offset_c in offset:
             for offset_l in offset:
-                if (offset_c != 0 or offset_l != 0) and (abs(offset_c) != abs(offset_l)):
-                    tmp_cell: Cell = self.maze[cell.get_l() + offset_l][cell.get_c() + offset_c]
+                if (offset_c != 0 or offset_l != 0) and (
+                    abs(offset_c) != abs(offset_l)
+                ):
+                    tmp_cell: Cell = self.maze[cell.get_l() + offset_l][
+                        cell.get_c() + offset_c
+                    ]
 
                     # We want unvisited cell
                     if not tmp_cell.visited:
@@ -96,29 +107,37 @@ class Maze:
     def find_exit(self):
         possible_exits: list[Cell] = []
 
-        #Go only on edges
+        # Go only on edges
         for column in range(self._column):
             for line in range(self._line):
-                if column == 0 or column == self._column - 1 or line == 0 or line == self._line - 1:
-                        cell: Cell = self.get(column, line)
-                        if not cell.entry:
-                            neighbour = self.get_connected_neighbour(cell)
-                            if len(neighbour) == 1:
-                                possible_exits.append(cell)
+                if (
+                    column == 0
+                    or column == self._column - 1
+                    or line == 0
+                    or line == self._line - 1
+                ):
+                    cell: Cell = self.get(column, line)
+                    if not cell.entry:
+                        neighbour = self.get_connected_neighbour(cell)
+                        if len(neighbour) == 1:
+                            possible_exits.append(cell)
 
         random_index = random.randint(0, len(possible_exits) - 1)
         possible_exits[random_index].exit = True
 
-
-    def get_connected_neighbour(self , cell: Cell) -> list[Cell]:
+    def get_connected_neighbour(self, cell: Cell) -> list[Cell]:
         result: list[Cell] = []
         offset: list[int] = [-1, 0, 1]
-        
+
         for offset_c in offset:
             for offset_l in offset:
-                if (offset_c != 0 or offset_l != 0) and (abs(offset_c) != abs(offset_l)):
-                    tmp_cell: Cell = self.maze[cell.get_l() + offset_l][cell.get_c() + offset_c]
-                
+                if (offset_c != 0 or offset_l != 0) and (
+                    abs(offset_c) != abs(offset_l)
+                ):
+                    tmp_cell: Cell = self.maze[cell.get_l() + offset_l][
+                        cell.get_c() + offset_c
+                    ]
+
                     if not cell.wall_up and not tmp_cell.wall_down:
                         result.append(tmp_cell)
                     if not tmp_cell.wall_up and not cell.wall_down:
@@ -160,7 +179,7 @@ class Maze:
             print("⬜\n", end="")
 
     def transform_in_file(self):
-        with open('./output.txt', "w", encoding='utf-8') as f:
+        with open("./output.txt", "w", encoding="utf-8") as f:
             # First row will always be a wall
             for _ in range(self._column * 2 + 1):
                 f.write("⬜")
@@ -174,15 +193,15 @@ class Maze:
                         f.write("⬜")
                     else:
                         f.write("🟦")
-                    
-                    #Current cell
+
+                    # Current cell
                     if cell.entry:
                         f.write("🟩")
                     elif cell.exit:
                         f.write("🟥")
                     else:
                         f.write("🟦")
-                
+
                 # The last character will always be a wall
                 f.write("⬜\n")
 
@@ -197,35 +216,36 @@ class Maze:
                         f.write("🟦")
                 f.write("⬜\n")
 
+
 def generate():
     line, column = read_config()
 
     maze = Maze(line=line, column=column)
 
-    #Default entry
+    # Default entry
     col = 0
     l = 0
     default_cell: Cell = maze.get(col, l)
     default_cell.visited = True
 
     stack = [default_cell]
-    
+
     while stack:
-        cell = stack[len(stack)-1]
+        cell = stack[len(stack) - 1]
         unvisited_neighbors: list[Cell] = [
             neighbour
             for neighbour in maze.get_unvisited_neighbour(cell)
             if not neighbour.visited
         ]
-        
+
         if unvisited_neighbors:
             random_index = random.randint(0, len(unvisited_neighbors) - 1)
             selected_neighbor = unvisited_neighbors[random_index]
-        
+
             maze.open(cell, selected_neighbor)
             stack.append(selected_neighbor)
         else:
             stack.remove(cell)
-    
+
     maze.find_exit()
     maze.transform_in_file()
