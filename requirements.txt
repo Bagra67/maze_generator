@@ -1,0 +1,9 @@
+distlib==0.3.8
+filelock==3.15.1
+immutable-views==0.6.1
+mcschematic==11.4.2
+nbtlib==2.0.4
+numpy==1.26.4
+pbr==6.0.0
+platformdirs==4.2.2
+stevedore==5.2.0
