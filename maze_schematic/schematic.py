@@ -1,9 +1,29 @@
 import mcschematic
 from config import read_config_schematic
 
+
+WALL = '⬜'
+PATH = '🟦'
+ENTRY = '🟩'
+EXIT = '🟥'
+
+
 def create():
     height, thickness_path, thickness_wall = read_config_schematic()
 
     schem: mcschematic.MCSchematic = mcschematic.MCSchematic()
-    schem.setBlock(  (0, -1, 0), "minecraft:stone"  )
+    with open('./output.txt', 'r', encoding='utf-8') as template:
+        content = template.readlines()
+
+        for l, line in enumerate(content):
+            for c, char in enumerate(line):
+                block = 'minecraft:air'
+                if char == WALL:
+                    block = 'minecraft:stone'
+                elif char == ENTRY:
+                    block = 'minecraft:green_stained_glass'
+                elif char == EXIT:
+                    block = 'minecraft:red_stained_glass'
+
+                schem.setBlock((c, -1, l), block)
     schem.save("schematics", "test", mcschematic.Version.JE_1_18_2)
