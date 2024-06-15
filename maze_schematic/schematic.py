@@ -25,5 +25,6 @@ def create():
                 elif char == EXIT:
                     block = 'minecraft:red_stained_glass'
 
-                schem.setBlock((c, -1, l), block)
+                for h in range(height):
+                    schem.setBlock((c, h, l), block)
     schem.save("schematics", "test", mcschematic.Version.JE_1_18_2)
