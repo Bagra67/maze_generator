@@ -15,13 +15,13 @@ class Cell:
         self._c: int = c
         self._l: int = l
 
-        self.entry = True if c == entry_col + 1 and l == entry_line + 1 else False
+        self.entry = True if c == entry_col and l == entry_line else False
         self.exit = False
 
     def __str__(self) -> str:
         return "({}, {}: {}|{}|{}|{})".format(
-            self._c - 1,
-            self._l - 1,
+            self._c,
+            self._l,
             self.wall_up,
             self.wall_right,
             self.wall_down,
@@ -32,10 +32,10 @@ class Cell:
         print("🟦", end="")
 
     def get_c(self):
-        return self._c
+        return self._c + 1
 
     def get_l(self):
-        return self._l
+        return self._l + 1
 
 
 class Maze:
@@ -46,7 +46,7 @@ class Maze:
         self._line: int = line
         self._column: int = column
         self.maze: list[list[Cell]] = [
-            [Cell(y, x, entry_col, entry_line) for y in range(column + 2)] for x in range(line + 2)
+            [Cell(y-1, x-1, entry_col, entry_line) for y in range(column + 2)] for x in range(line + 2)
         ]
 
         # All edges are already visited to avoid use in algorithm
@@ -70,22 +70,24 @@ class Maze:
         # Du coup le vrai 0,0 du tableau et en 1,1
         return self.maze[line + 1][col + 1]
 
-    def get_unvisited_neighbour(self, cell: Cell) -> list[Cell]:
+    def get_neighbors(self, cell: Cell):
         result: list[Cell] = []
         offset: list[int] = [-1, 0, 1]
         for offset_c in offset:
             for offset_l in offset:
+                #Get only direct neighbors and not diagonal and itself
                 if (offset_c != 0 or offset_l != 0) and (
                     abs(offset_c) != abs(offset_l)
                 ):
                     tmp_cell: Cell = self.maze[cell.get_l() + offset_l][
                         cell.get_c() + offset_c
                     ]
-
-                    # We want unvisited cell
-                    if not tmp_cell.visited:
-                        result.append(tmp_cell)
+                    result.append(tmp_cell)
         return result
+    
+    def get_unvisited_neighbour(self, cell: Cell) -> list[Cell]:
+        result = self.get_neighbors(cell)
+        return [cell for cell in result if not cell.visited ]
 
     def open(self, current_cell: Cell, neighbor: Cell) -> None:
         if current_cell.get_c() == neighbor.get_c():
@@ -122,32 +124,32 @@ class Maze:
                         if len(neighbour) == 1:
                             possible_exits.append(cell)
 
-        random_index = random.randint(0, len(possible_exits) - 1)
-        possible_exits[random_index].exit = True
+        if possible_exits:
+            random_index = random.randint(0, len(possible_exits) - 1)
+            possible_exits[random_index].exit = True
+        else:
+            import web_pdb; web_pdb.set_trace(port=4000)
 
     def get_connected_neighbour(self, cell: Cell) -> list[Cell]:
+        neighbors: list[Cell] = self.get_neighbors(cell)
         result: list[Cell] = []
-        offset: list[int] = [-1, 0, 1]
 
-        for offset_c in offset:
-            for offset_l in offset:
-                if (offset_c != 0 or offset_l != 0) and (
-                    abs(offset_c) != abs(offset_l)
-                ):
-                    tmp_cell: Cell = self.maze[cell.get_l() + offset_l][
-                        cell.get_c() + offset_c
-                    ]
+        for n in neighbors:
+            if cell.get_c() == n.get_c():
+                if not cell.wall_up and not n.wall_down:
+                    result.append(n)
+                elif not cell.wall_down and not n.wall_up:
+                    result.append(n)
+            
+            if cell.get_l() == n.get_l():
+                if not cell.wall_left and not n.wall_right:
+                        result.append(n)
+                elif not cell.wall_right and not n.wall_left:
+                    result.append(n)
 
-                    if not cell.wall_up and not tmp_cell.wall_down:
-                        result.append(tmp_cell)
-                    if not tmp_cell.wall_up and not cell.wall_down:
-                        result.append(tmp_cell)
-                    if not cell.wall_left and not tmp_cell.wall_right:
-                        result.append(tmp_cell)
-                    if not tmp_cell.wall_left and not cell.wall_right:
-                        result.append(tmp_cell)
         return result
-
+    
+    
     def display(self):
         # First row will always be a wall
         for _ in range(self._column * 2 + 1):
@@ -163,7 +165,13 @@ class Maze:
                 else:
                     print("🟦", end="")
 
-                cell.display()
+                # Current cell
+                if cell.entry:
+                    print("🟩", end="")
+                elif cell.exit:
+                    print("🟥", end="")
+                else:
+                    print("🟦", end="")
             # The last character will always be a wall
             print("⬜\n", end="")
 
