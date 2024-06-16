@@ -18,7 +18,6 @@ def read_config_schematic(config_file=CONFIG_FILE):
 
     # Retrieve values
     height: int = int(config.get("schematic", "height"))
-    thickness_path: int = int(config.get("schematic", "thickness_path"))
-    thickness_wall: int = int(config.get("schematic", "thickness_wall"))
+    thickness: int = int(config.get("schematic", "thickness"))
 
-    return height, thickness_path, thickness_wall
+    return height, thickness
