@@ -10,8 +10,15 @@ def read_config_generator(config_file=CONFIG_FILE):
     line: int = int(config.get("maze", "line"))
     column: int = int(config.get("maze", "column"))
 
+    
+    
     entry_column: int = int(config.get("maze", "entry_column"))
     entry_line: int = int(config.get("maze", "entry_line"))
+
+    if entry_column != 0 and (entry_line != 0 and entry_line != line - 1):
+        raise ValueError("Your entry point must be on edge of the maze")
+    if entry_line != 0 and (entry_column != 0 and entry_column != column - 1):
+        raise ValueError("Your entry point must be on edge of the maze") 
 
     return line, column, entry_column, entry_line
 

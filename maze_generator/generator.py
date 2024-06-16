@@ -5,7 +5,7 @@ from config import read_config_generator
 
 class Cell:
 
-    def __init__(self, c, l):
+    def __init__(self, c, l, entry_col = 0, entry_line = 0):
         self.visited: bool = False
         self.wall_up: bool = True
         self.wall_down: bool = True
@@ -15,7 +15,7 @@ class Cell:
         self._c: int = c
         self._l: int = l
 
-        self.entry = True if c == 1 and l == 1 else False
+        self.entry = True if c == entry_col + 1 and l == entry_line + 1 else False
         self.exit = False
 
     def __str__(self) -> str:
@@ -42,11 +42,11 @@ class Maze:
     # Quand on parcours un tableau et qu'on veut les cases autour d'une on créer un tableau de taille n+2
     # Grace à ça les contours ne sont pas à gérer de façon particulères
 
-    def __init__(self, column, line) -> None:
+    def __init__(self, column, line, entry_col = 0, entry_line = 0) -> None:
         self._line: int = line
         self._column: int = column
         self.maze: list[list[Cell]] = [
-            [Cell(y, x) for y in range(column + 2)] for x in range(line + 2)
+            [Cell(y, x, entry_col, entry_line) for y in range(column + 2)] for x in range(line + 2)
         ]
 
         # All edges are already visited to avoid use in algorithm
@@ -220,7 +220,7 @@ class Maze:
 def generate():
     line, column, entry_col, entry_line = read_config_generator()
 
-    maze = Maze(line=line, column=column)
+    maze = Maze(line=line, column=column, entry_col=entry_col, entry_line=entry_line)
 
     # Default entry
     default_cell: Cell = maze.get(entry_col, entry_line)
