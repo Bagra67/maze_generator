@@ -218,14 +218,12 @@ class Maze:
 
 
 def generate():
-    line, column = read_config_generator()
+    line, column, entry_col, entry_line = read_config_generator()
 
     maze = Maze(line=line, column=column)
 
     # Default entry
-    col = 0
-    l = 0
-    default_cell: Cell = maze.get(col, l)
+    default_cell: Cell = maze.get(entry_col, entry_line)
     default_cell.visited = True
 
     stack = [default_cell]

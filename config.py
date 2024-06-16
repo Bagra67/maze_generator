@@ -10,7 +10,10 @@ def read_config_generator(config_file=CONFIG_FILE):
     line: int = int(config.get("maze", "line"))
     column: int = int(config.get("maze", "column"))
 
-    return line, column
+    entry_column: int = int(config.get("maze", "entry_column"))
+    entry_line: int = int(config.get("maze", "entry_line"))
+
+    return line, column, entry_column, entry_line
 
 def read_config_schematic(config_file=CONFIG_FILE):
     config = configparser.ConfigParser()
