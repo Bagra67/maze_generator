@@ -42,7 +42,8 @@ def create():
             #Loop to have the height we want
             for h in range(height):
                 for c, char in enumerate(transform_line):
-                    block = selected_block(char)
-                    schem.setBlock((c,h,l), block)
+                    for t in range(thickness):
+                        block = selected_block(char)
+                        schem.setBlock((c, h, l*thickness + t), block)
                    
     schem.save("schematics", "test", mcschematic.Version.JE_1_18_2)
