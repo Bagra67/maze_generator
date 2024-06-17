@@ -5,7 +5,7 @@ from config import read_config_generator
 
 class Cell:
 
-    def __init__(self, c, l, entry_col = 0, entry_line = 0):
+    def __init__(self, c, l, entry_col=0, entry_line=0):
         self.visited: bool = False
         self.is_wall: bool = True
 
@@ -40,14 +40,16 @@ class Cell:
 
 
 class Maze:
-    # Quand on parcours un tableau et qu'on veut les cases autour d'une on créer un tableau de taille n+2
+    # Quand on parcours un tableau et qu'on veut les cases autour
+    # d'une on créé un tableau de taille n+2
     # Grace à ça les contours ne sont pas à gérer de façon particulères
 
-    def __init__(self, column, line, entry_col = 0, entry_line = 0) -> None:
+    def __init__(self, column, line, entry_col=0, entry_line=0) -> None:
         self._line: int = line
         self._column: int = column
         self.maze: list[list[Cell]] = [
-            [Cell(y-1, x-1, entry_col, entry_line) for y in range(column + 2)] for x in range(line + 2)
+            [Cell(y - 1, x - 1, entry_col, entry_line) for y in range(column + 2)]
+            for x in range(line + 2)
         ]
 
         # All edges are already visited to avoid use in algorithm
@@ -72,19 +74,19 @@ class Maze:
         offset: list[int] = [-1, 0, 1]
         for offset_c in offset:
             for offset_l in offset:
-                #Get only direct neighbors and not diagonal and itself
+                # Get only direct neighbors and not diagonal and itself
                 if (offset_c != 0 or offset_l != 0) and (
                     abs(offset_c) != abs(offset_l)
                 ):
                     c = cell.get_c() + offset_c
                     l = cell.get_l() + offset_l
-                    neighbour: Cell = self.get(c,l)
+                    neighbour: Cell = self.get(c, l)
                     result.append(neighbour)
         return result
-    
+
     def get_unvisited_neighbour(self, cell: Cell) -> list[Cell]:
         neighbours = self.get_neighbours(cell)
-        return [cell for cell in neighbours if not cell.visited ]
+        return [cell for cell in neighbours if not cell.visited]
 
     def open(self, current_cell: Cell, neighbor: Cell) -> None:
         neighbor.is_wall = False
@@ -111,8 +113,6 @@ class Maze:
         if possible_exits:
             random_index = random.randint(0, len(possible_exits) - 1)
             possible_exits[random_index].exit = True
-        else:
-            import web_pdb; web_pdb.set_trace(port=4000)
 
     def get_connected_neighbour(self, cell: Cell) -> list[Cell]:
         neighbors: list[Cell] = self.get_neighbours(cell)
@@ -122,17 +122,16 @@ class Maze:
             if not n.is_wall:
                 result.append(n)
         return result
-    
-    
+
     def display(self):
         for line in self.maze:
             for cell in line:
                 cell.display()
-            print('\n', end='')
-        
+            print("\n", end="")
+
     def transform_in_file(self):
-       #TODO
-       pass
+        # TODO
+        pass
 
 
 def generate():
