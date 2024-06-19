@@ -1,3 +1,4 @@
+from io import TextIOWrapper
 import random
 
 from config import read_config_generator
@@ -22,15 +23,25 @@ class Cell:
             self.is_wall,
         )
 
-    def display(self):
-        if self.is_wall:
-            print("⬜", end="")
-        elif self.entry:
-            print("🟩", end="")
-        elif self.exit:
-            print("🟥", end="")
+    def display(self, file: TextIOWrapper =None):
+        if not file:
+            if self.is_wall:
+                print("⬜", end="")
+            elif self.entry:
+                print("🟩", end="")
+            elif self.exit:
+                print("🟥", end="")
+            else:
+                print("🟦", end="")
         else:
-            print("🟦", end="")
+            if self.is_wall:
+                file.write("⬜")
+            elif self.entry:
+                file.write("🟩")
+            elif self.exit:
+                file.write("🟥")
+            else:
+                file.write("🟦")
 
     def get_c(self):
         return self._c
@@ -65,19 +76,39 @@ class Maze:
 
     def get(self, col: int, line: int) -> Cell:
         # Du coup le vrai 0,0 du tableau et en 1,1
-        return self.maze[line + 1][col + 1]
+        result = self.maze[line + 1][col + 1]
+        return result
+    
+    def get_between(self, cell1: Cell, cell2: Cell) -> Cell:
+        c1, l1 = cell1.get_c(), cell1.get_l()
+        c2, l2 = cell2.get_c(), cell2.get_l()
+
+        if abs(c1 - c2) == 2 and abs(l1 - l2) == 0:
+            # Horizontally separated
+            c_m = ((c1 + c2) // 2) 
+            l_m = l1
+        elif abs(c1 - c2) == 0 and abs(l1 - l2) == 2:
+            # Vertically separated
+            c_m = c1
+            l_m = ((l1 + l2) // 2)
+        
+        return self.get(c_m, l_m)
 
     def get_neighbours(self, cell: Cell):
         result: list[Cell] = []
-        offset: list[int] = [-1, 0, 1]
+        #Two because always a wall between two path
+        offset: list[int] = [-2, 0, 2]
+        # import web_pdb; web_pdb.set_trace(port=4000)
         for offset_c in offset:
             for offset_l in offset:
                 #Get only direct neighbors and not diagonal and itself
                 if (offset_c != 0 or offset_l != 0) and (
                     abs(offset_c) != abs(offset_l)
                 ):
-                    c = cell.get_c() + offset_c
-                    l = cell.get_l() + offset_l
+                    c = max(-1, cell.get_c() + offset_c)
+                    c = min(self._column, c)
+                    l = max(-1, cell.get_l() + offset_l)
+                    l = min(self._line, l)
                     neighbour: Cell = self.get(c,l)
                     result.append(neighbour)
         return result
@@ -89,6 +120,10 @@ class Maze:
     def open(self, current_cell: Cell, neighbor: Cell) -> None:
         neighbor.is_wall = False
         neighbor.visited = True
+        between: Cell = self.get_between(current_cell, neighbor)
+        between.is_wall = False
+        between.visited = True
+        # import web_pdb; web_pdb.set_trace(port=4000)
 
     def find_exit(self):
         possible_exits: list[Cell] = []
@@ -111,8 +146,8 @@ class Maze:
         if possible_exits:
             random_index = random.randint(0, len(possible_exits) - 1)
             possible_exits[random_index].exit = True
-        else:
-            import web_pdb; web_pdb.set_trace(port=4000)
+        # else:
+        #     import web_pdb; web_pdb.set_trace(port=4000)
 
     def get_connected_neighbour(self, cell: Cell) -> list[Cell]:
         neighbors: list[Cell] = self.get_neighbours(cell)
@@ -131,8 +166,12 @@ class Maze:
             print('\n', end='')
         
     def transform_in_file(self):
-       #TODO
-       pass
+        file: TextIOWrapper = open('../output.txt', 'w', encoding='utf-8')
+        for line in self.maze:
+            for cell in line:
+                cell.display(file=file)
+            file.write('\n')
+        file.close()
 
 
 def generate():
@@ -166,3 +205,4 @@ def generate():
 
     maze.find_exit()
     maze.display()
+    maze.transform_in_file()
