@@ -127,8 +127,6 @@ class Maze:
         if possible_exits:
             random_index = random.randint(0, len(possible_exits) - 1)
             possible_exits[random_index].exit = True
-        else:
-            import web_pdb; web_pdb.set_trace(port=4000)
 
     def get_connected_neighbour(self, cell: Cell) -> list[Cell]:
         neighbors: list[Cell] = self.get_neighbors(cell)
