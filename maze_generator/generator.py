@@ -147,7 +147,6 @@ class Maze:
 
         return result
     
-    
     def display(self):
         # First row will always be a wall
         for _ in range(self._column * 2 + 1):
@@ -235,12 +234,8 @@ def generate():
     stack = [default_cell]
 
     while stack:
-        cell = stack[len(stack) - 1]
-        unvisited_neighbors: list[Cell] = [
-            neighbour
-            for neighbour in maze.get_unvisited_neighbour(cell)
-            if not neighbour.visited
-        ]
+        cell = stack[-1]
+        unvisited_neighbors: list[Cell] = maze.get_unvisited_neighbour(cell)
 
         if unvisited_neighbors:
             random_index = random.randint(0, len(unvisited_neighbors) - 1)
