@@ -8,23 +8,6 @@ PATH = '🟦'
 ENTRY = '🟩'
 EXIT = '🟥'
 
-def print_char(char: str, shem:  mcschematic.MCSchematic, coord: Tuple[int]) -> str:
-    c ,h ,l = coord
-    if char == ENTRY:
-        pass
-    elif char == EXIT:
-        block = 'minecraft:red_stained_glass'
-    
-    return block
-
-def apply_thickness(line, thickness) -> list[str]:
-    transform_line = []
-    for char in line: 
-        for _ in range(thickness):
-            transform_line.append(char)
-
-    return transform_line
-
 def create():
     height, thickness = read_config_schematic()
 
